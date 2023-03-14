@@ -42,14 +42,17 @@ class KalahaGame:
             self.board[pit] += 1
             stones -= 1
 
-        if pit == kalaha:
-            self.current_player = 1 if self.current_player == 2 else 2
-        elif self.board[pit] == 1 and pit in pits:
+        if (self.board[pit] == 1 and stones == 0) and pit in pits:
             opposite_pit = 12 - pit
             if self.board[opposite_pit] > 0:
-                self.board[kalaha] += self.board[opposite_pit] + 1
+                self.board[kalaha] += self.board[opposite_pit]
                 self.board[opposite_pit] = 0
-                self.board[pit] = 0
+
+        if stones == 0:
+            if (self.board[pit] == 1 or pit == kalaha) and pit not in pits:
+                self.current_player = self.current_player
+            else:
+                self.current_player = 1 if self.current_player == 2 else 2
 
         if self.game_over():
             self.print_board()
