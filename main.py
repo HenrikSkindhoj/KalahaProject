@@ -53,17 +53,23 @@ class KalahaGame:
 
         if self.game_over():
             self.print_board()
-            self.print_winner()
+            self.find_winner()
         else:
             self.print_board()
 
     def game_over(self):
         return sum(self.board[:6]) == 0 or sum(self.board[7:13]) == 0
 
-    def print_winner(self):
+    def find_winner(self):
         if self.board[6] > self.board[13]:
+            self.board[13] += sum(self.board[7:13])
+            self.board[:6] = [0] * 6
+            self.board[7:13] = [0] * 6
             print("Player 1 wins!")
         elif self.board[6] < self.board[13]:
+            self.board[6] += sum(self.board[:6])
+            self.board[:6] = [0] * 6
+            self.board[7:13] = [0] * 6
             print("Player 2 wins!")
         else:
             print("It's a tie!")
