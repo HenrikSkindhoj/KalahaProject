@@ -5,59 +5,74 @@ class KalahaGame:
     def __init__(self):
         self.board = [4] * 6 + [0] + [4] * 6 + [0]
         self.current_player = 1
-        self.max_depth = 15
+        self.max_depth = 8
         self.alpha = float('-inf')
         self.beta = float('inf')
         self.opt_mov = -1
-
-    def curr_player_pits(self):
-        if self.current_player == 1:
-            return range(0, 5)
-        else:
-            return range(7, 12)
+        self.player_1_kalaha_index = 6
+        self.player_2_kalaha_index = 13
 
     def print_board(self):
-        print("    P12" + "  P11" + "  P10" + "  P9" + "   P8" + "   P7")
-        print("------------------------------------")
-        print("    " + "    ".join(str(x) for x in self.board[12:6:-1]))
-        print("{:02d}".format(self.board[13]), "    " * 7, "{:02d}".format(self.board[6]))
-        print("    " + "    ".join(str(x) for x in self.board[:6]))
-        print("------------------------------------")
-        print("    P0" + "   P1" + "   P2" + "   P3" + "   P4" + "   P5")
+        print("++++++++++++++++++++++++++++++++++++++")
+        print("|    P12" + "  P11" + "  P10" + "  P9" + "   P8" + "   P7     |")
+        print("--------------------------------------")
+        print("|     " + "    ".join(str(x) for x in self.board[12:6:-1]) + "     |")
+        print("| {:02d}".format(self.board[13]), "    " * 7, "{:02d}".format(self.board[6]) + " |")
+        print("|     " + "    ".join(str(x) for x in self.board[:6]) + "     |")
+        print("--------------------------------------")
+        print("|    P0" + "   P1" + "   P2" + "   P3" + "   P4" + "   P5     |")
+        print("++++++++++++++++++++++++++++++++++++++")
 
     def game_over(self):
         return sum(self.board[:6]) == 0 or sum(self.board[7:13]) == 0
 
     def find_winner(self):
-        if self.board[6] > self.board[13]:
-            self.board[13] += sum(self.board[7:13])
+        if self.board[self.player_1_kalaha_index] > self.board[self.player_2_kalaha_index]:
+            self.board[self.player_2_kalaha_index] += sum(self.board[7:13])
             self.board[:6] = [0] * 6
             self.board[7:13] = [0] * 6
-            print("Player 1 wins!")
-        elif self.board[6] < self.board[13]:
-            self.board[6] += sum(self.board[:6])
+            self.end_game_prompt("Player 1 won the game !!!")
+        elif self.board[self.player_1_kalaha_index] < self.board[self.player_2_kalaha_index]:
+            self.board[self.player_1_kalaha_index] += sum(self.board[:6])
             self.board[:6] = [0] * 6
             self.board[7:13] = [0] * 6
-            print("Player 2 wins!")
+            self.end_game_prompt("Player 2 won the game !!!")
         else:
-            print("It's a tie!")
+            self.end_game_prompt("Tied game, what a nail bidder :D")
+
+    def end_game_prompt(self, text):
+        print()
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        print("####################################")
+        print("------------------------------------")
+        print(f"     {text}")
+        print("------------------------------------")
+        print("####################################")
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        print()
+
+    def helper_text(self, text):
+        print(f"{text}")
+
+    def input_divider(self):
+        print("++++++++++++++++++++++++++++++++++++")
 
     def play(self, pit, should_print):
         if self.current_player == 1:
-            pits = range(0, 6)
-            kalaha = 6
-            opponent_kalaha = 13
+            pits = self.curr_player_pits()
+            kalaha = self.player_1_kalaha_index
+            opponent_kalaha = self.player_2_kalaha_index
         else:
-            pits = range(7, 13)
-            kalaha = 13
-            opponent_kalaha = 6
+            pits = self.curr_player_pits()
+            kalaha = self.player_2_kalaha_index
+            opponent_kalaha = self.player_1_kalaha_index
 
         if pit not in pits:
-            print("Invalid move")
+            self.helper_text("Invalid move")
             return
 
         if self.board[pit] == 0:
-            print("This pit is empty")
+            self.helper_text("This pit is empty")
             return
 
         stones = self.board[pit]
@@ -98,9 +113,9 @@ class KalahaGame:
         # Check if game over or depth reached
         if depth == self.max_depth or self.game_over():
             if self.current_player == 1:
-                return self.board[6] - self.board[13]
+                return self.board[self.player_1_kalaha_index] - self.board[self.player_2_kalaha_index]
             else:
-                return self.board[13] - self.board[6]
+                return self.board[self.player_2_kalaha_index] - self.board[self.player_1_kalaha_index]
 
         else:
             # Max value player
@@ -154,24 +169,60 @@ class KalahaGame:
                 return opt_val
 
 
-
-
 def main():
+    player_1 = 1
+    player_2 = 2
     game = KalahaGame()
-    game.print_board()
-    while not game.game_over():
-        if game.current_player == 1:
-            pit = int(input("Player 1, choose a pit to play (0-5): "))
+
+    game.input_divider()
+    game_mode = int(input("Choose game mode: \n 1) Player vs. Player \n 2) Player vs. AI \n 3) AI vs. AI "))
+    # Player vs. Player
+    if game_mode == 1:
+        game.print_board()
+        while not game.game_over():
+            if game.current_player == 1:
+                pit = int(input("Player 1, choose a pit to play (0-5): "))
+            else:
+                pit = int(input("Player 2, choose a pit to play (7-12): "))
             game.play(pit, True)
-        else:
-            game.minimax(0, game.alpha, game.beta, 2)
-            if game.opt_mov != -1:
-                print("-------------")
-                print(f"Player 2 chose {game.opt_mov}")
-                print("-------------")
+    # Player vs. AI
+    elif game_mode == 2:
+        game.input_divider()
+        difficulty = int(input("Choose difficulty: \n 1) Easy \n 2) Medium \n 3) Hard "))
+        match difficulty:
+            case 1:
+                game.max_depth = 2
+            case 2:
+                game.max_depth = 5
+            case 3:
+                game.max_depth = 8
+
+        game.print_board()
+        while not game.game_over():
+            if game.current_player == 1:
+                pit = int(input("Player 1, choose a pit to play (0-5): "))
+                game.play(pit, True)
+            else:
+                game.minimax(0, game.alpha, game.beta, player_2)
+                game.play(game.opt_mov, True)
+                if not game.game_over():
+                    game.helper_text(f"Player 2 chose {game.opt_mov}")
+                    game.print_board()
+    # AI vs. AI
+    elif game_mode == 3:
+        game.input_divider()
+        depth = int(input("Choose please select a game depth:"))
+        game.max_depth = depth
+        game.print_board()
+        while not game.game_over():
+            if game.current_player == 1:
+                game.minimax(0, game.alpha, game.beta, player_1)
                 game.play(game.opt_mov, True)
             else:
-                print("Wrong opt_mov")
+                game.minimax(0, game.alpha, game.beta, player_2)
+                if game.opt_mov != -1 and not game.game_over():
+                    game.helper_text(f"Player 2 chose {game.opt_mov}")
+                    game.play(game.opt_mov, True)
 
 
 if __name__ == '__main__':
