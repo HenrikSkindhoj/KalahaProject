@@ -63,8 +63,8 @@ class KalahaGame:
                     self.current_player = 1 if self.current_player == 2 else 2
 
             if self.game_over():
+                self.find_winner()
                 self.print_board()
-                self.print_winner()
             else:
                 self.print_board()
         else:
@@ -115,8 +115,8 @@ class KalahaGame:
                 self.current_player = 1 if self.current_player == 2 else 2
 
         if self.game_over():
-            self.print_board()
             self.find_winner()
+            self.print_board()
         else:
             self.print_board()
 
@@ -125,16 +125,20 @@ class KalahaGame:
 
     def find_winner(self):
         if self.board[6] > self.board[13]:
-            self.board[13] += sum(self.board[7:13])
+            self.board[6] += sum(self.board[:6])
             self.board[:6] = [0] * 6
+            self.board[13] += sum(self.board[7:13])
             self.board[7:13] = [0] * 6
             print("Player 1 wins!")
         elif self.board[6] < self.board[13]:
+            self.board[13] += sum(self.board[7:13])
+            self.board[7:13] = [0] * 6
             self.board[6] += sum(self.board[:6])
             self.board[:6] = [0] * 6
-            self.board[7:13] = [0] * 6
             print("Player 2 wins!")
         else:
+            self.board[7:13] = [0] * 6
+            self.board[:6] = [0] * 6
             print("It's a tie!")
 
     def minimax(self, depth, alpha, beta):
