@@ -31,14 +31,17 @@ class KalahaGame:
             self.board[self.player_2_kalaha_index] += sum(self.board[7:13])
             self.board[:6] = [0] * 6
             self.board[7:13] = [0] * 6
-            self.end_game_prompt("Player 1 won the game !!!")
         elif self.board[self.player_1_kalaha_index] < self.board[self.player_2_kalaha_index]:
             self.board[self.player_1_kalaha_index] += sum(self.board[:6])
             self.board[:6] = [0] * 6
             self.board[7:13] = [0] * 6
+
+        if self.board[self.player_1_kalaha_index] > self.board[self.player_2_kalaha_index]:
+            self.end_game_prompt("Player 1 won the game !!!")
+        elif self.board[self.player_1_kalaha_index] < self.board[self.player_2_kalaha_index]:
             self.end_game_prompt("Player 2 won the game !!!")
         else:
-            self.end_game_prompt("Tied game, what a nail bidder :D")
+            self.end_game_prompt("Tied game, what a nail biter :D")
 
     def end_game_prompt(self, text):
         print()
@@ -98,8 +101,8 @@ class KalahaGame:
 
         if self.game_over():
             if should_print:
-                self.print_board()
                 self.find_winner()
+                self.print_board()
         elif should_print:
             self.print_board()
 
